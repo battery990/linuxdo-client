@@ -12,7 +12,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     env:
-      ANDROID_HOME: /usr/local/lib/android/sdk
       NDK_VERSION: "27.2.12479018"
     steps:
       - name: Checkout
@@ -43,36 +42,37 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android,x86_64-linux-android,armv7-linux-androideabi
+          targets: aarch64-linux-android
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
 
+      - name: Build frontend
+        run: npm run build
+
       - name: Init Android project
         run: npx tauri android init
 
       - name: Build Android APK
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tauriScript: npx tauri
-          args: android build --target aarch64-linux-android
+        run: npx tauri android build --target aarch64-linux-android
+
+      - name: Find APK
+        id: find-apk
+        run: |
+          APK=$(find src-tauri -name "*.apk" | head -1)
+          echo "apk_path=$APK" >> $GITHUB_OUTPUT
+          echo "Found APK: $APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: linuxdo-client-android
-          path: |
-            src-tauri/gen/android/app/build/outputs/apk/**/*.apk
-            src-tauri/target/*/release/bundle/android/*.apk
+          path: ${{ steps.find-apk.outputs.apk_path }}
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/*.apk
-            src-tauri/target/*/release/bundle/android/*.apk
+          files: ${{ steps.find-apk.outputs.apk_path }}
