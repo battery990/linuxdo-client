@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicholasconfer/tauri/dev/crates/tauri-utils/schema/capability.json",
+  "identifier": "default",
+  "description": "Default capability for linuxdo-client",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "sql:default",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close",
+    "sql:allow-load"
+  ]
+}

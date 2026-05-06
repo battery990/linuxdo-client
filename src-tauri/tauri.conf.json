@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schema.json",
+  "productName": "linuxdo-client",
+  "version": "0.1.0",
+  "identifier": "com.linuxdo.client",
+  "build": {
+    "frontendDist": "../build",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "linux.do",
+        "width": 420,
+        "height": 780,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "android": {
+      "minSdkVersion": 24,
+      "targetSdkVersion": 34,
+      "packageName": "com.linuxdo.client"
+    }
+  },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:linuxdo.db"]
+    }
+  }
+}
