@@ -55,13 +55,35 @@ jobs:
       - name: Init Android project
         run: npx tauri android init
 
+      - name: Generate debug keystore
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Debug,OU=Debug,O=Debug,L=Debug,ST=Debug,C=US"
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+
       - name: Build Android APK
         run: npx tauri android build --target aarch64-linux-android
+        env:
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
 
       - name: Find APK
         id: find-apk
         run: |
           APK=$(find src-tauri -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "::error::No APK found!"
+            find src-tauri -type f -name "*.apk" -o -name "*.aab" 2>/dev/null || true
+            exit 1
+          fi
           echo "apk_path=$APK" >> $GITHUB_OUTPUT
           echo "Found APK: $APK"
 
