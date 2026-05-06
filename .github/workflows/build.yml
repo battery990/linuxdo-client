@@ -11,6 +11,9 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      NDK_VERSION: "27.2.12479018"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,14 +29,13 @@ jobs:
 
       - name: Install Android NDK
         run: |
-          sdkmanager "ndk;27.2.12479018"
-          echo "NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> $GITHUB_ENV
+          sdkmanager "ndk;$NDK_VERSION"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
 
       - name: Install frontend dependencies
         run: npm ci
@@ -55,8 +57,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         with:
           tauriScript: npx tauri
           args: android build --target aarch64-linux-android

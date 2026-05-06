@@ -21,11 +21,6 @@
     ],
     "security": {
       "csp": null
-    },
-    "android": {
-      "minSdkVersion": 24,
-      "targetSdkVersion": 34,
-      "packageName": "com.linuxdo.client"
     }
   },
   "plugins": {
